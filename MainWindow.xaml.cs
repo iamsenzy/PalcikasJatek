@@ -29,7 +29,7 @@ namespace Palcikas_Jatek
         private const int Dot = Cell / 7;
        
         // game var
-        private List<List<Square>> squares;
+        private List<Square> squares;
         private bool playersTurn;
 
         private readonly Random _random = new Random();
@@ -43,6 +43,7 @@ namespace Palcikas_Jatek
         private void InitGame()
         {
             DrawGrid();
+            NewGame();
             DrawSquares();
         }
 
@@ -50,13 +51,13 @@ namespace Palcikas_Jatek
         private void NewGame()
         {
             playersTurn = _random.Next() % 2 == 0;
-            squares = new List<List<Square>>();
+            squares = new List<Square>();
             squares.Clear();
             for (int i = 0; i < GridSize; i++)
             {
                 for (int j = 0; j < GridSize; j++)
                 {
-                    squares[i][j] = new Square(GetGridX(j), GetGridY(i), Cell, Cell);
+                    squares.Add(new Square(GetGridX(j), GetGridY(i), Cell, Cell));
                 }
             }
         }
@@ -84,13 +85,10 @@ namespace Palcikas_Jatek
 
         private void DrawSquares()
         {
-            foreach (var row in squares)
+            foreach (var square in squares)
             {
-                foreach (var square in row)
-                {
                     square.DrawSides();
                     square.DrawFill();
-                }
             }
         }
 
