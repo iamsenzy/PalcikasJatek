@@ -13,6 +13,7 @@
             <TextBlock x:Name="tbScore" Margin="5"/>
         </StackPanel>
         <Canvas x:Name="canvas" Height="500" Width="500" Background="White"
+                MouseMove="canvas_MouseMove"
                 Margin="20"/>
     </StackPanel>
 </Window>

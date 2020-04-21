@@ -1,6 +1,7 @@
 ﻿using Palcikas_Jatek.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Palcikas_Jatek
         private const int GameWidth = 500;
         private const int GridSize = 5;
         private const int Cell = GameWidth / (GridSize + 2);
-        private const int Dot = Cell / 7;
+        private const int Dot = Cell / 10;
        
         // game var
         private List<Square> squares;
@@ -45,19 +46,21 @@ namespace Palcikas_Jatek
             DrawGrid();
             NewGame();
             DrawSquares();
+           
         }
 
         
         private void NewGame()
         {
-            playersTurn = _random.Next() % 2 == 0;
+            //playersTurn = _random.Next() % 2 == 0;
+            playersTurn = true;
             squares = new List<Square>();
             squares.Clear();
             for (int i = 0; i < GridSize; i++)
             {
                 for (int j = 0; j < GridSize; j++)
                 {
-                    squares.Add(new Square(GetGridX(j), GetGridY(i), Cell, Cell));
+                    squares.Add(new Square(GetGridX(j), GetGridY(i), Cell, Cell, canvas));
                 }
             }
         }
@@ -67,8 +70,8 @@ namespace Palcikas_Jatek
             var dot = new Ellipse();
             dot.Fill = Brushes.Coral;
             dot.Width = dot.Height = Dot;
-            Canvas.SetTop(dot, y);
-            Canvas.SetLeft(dot, x);
+            Canvas.SetTop(dot, y - Dot / 2);
+            Canvas.SetLeft(dot, x - Dot / 2);
             canvas.Children.Add(dot);
         }
 
@@ -87,10 +90,12 @@ namespace Palcikas_Jatek
         {
             foreach (var square in squares)
             {
-                    square.DrawSides();
+                    square.DrawSides(playersTurn);
                     square.DrawFill();
             }
         }
+
+        
 
         private int GetGridX(int col)
         {
@@ -99,6 +104,38 @@ namespace Palcikas_Jatek
         private int GetGridY(int row)
         {
             return Cell + Cell * row;
+        }
+
+        private void canvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!playersTurn)
+            {
+                return;
+            }
+
+            int x = (int) e.GetPosition(canvas).X ;
+            int y = (int) e.GetPosition(canvas).Y ;
+
+            HighLightSide(x, y);
+        }
+
+        private void HighLightSide(int x, int y)
+        {
+            // clear prev highlihting
+            foreach (var square in squares)
+            {
+                square.HighLight = Side.Null;
+            }
+
+            foreach (var square in squares)
+            {
+                if (square.Contains(x,y))
+                {
+                    var side = square.HighLightSide(x, y);
+                    square.DrawSides(playersTurn);
+                }
+            }
+            
         }
     }
 }

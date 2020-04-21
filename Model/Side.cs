@@ -9,6 +9,7 @@ namespace Palcikas_Jatek.Model
         LEFT,
         TOP,
         RIGHT,
-        BOTTOM
+        BOTTOM,
+        Null
     }
 }
