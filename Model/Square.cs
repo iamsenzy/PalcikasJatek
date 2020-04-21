@@ -45,7 +45,7 @@ namespace Palcikas_Jatek.Model
             }
             else
             {
-                return light ? Brushes.LightPink : Brushes.Pink;
+                return light ? Brushes.LightGreen : Brushes.Green;
             }
         }
 

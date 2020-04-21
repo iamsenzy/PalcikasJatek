@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Palcikas_Jatek
 {
@@ -28,32 +29,39 @@ namespace Palcikas_Jatek
         private const int GridSize = 5;
         private const int Cell = GameWidth / (GridSize + 2);
         private const int Dot = Cell / 10;
-       
+        private const double RefreshTimerSec = 0.1;
+
         // game var
         private List<Square> squares;
-        private bool playersTurn;
+        private bool _playersTurn;
+        private bool _isRunning;
+        private readonly DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);
+
 
         private readonly Random _random = new Random();
 
         public MainWindow()
         {
             InitializeComponent();
-            InitGame();
-        }
-
-        private void InitGame()
-        {
-            DrawGrid();
+            _timer.Interval = TimeSpan.FromSeconds(RefreshTimerSec);
+            _timer.Tick += TimerTick;
+            _timer.Start();
+            _isRunning = true;
             NewGame();
-            DrawSquares();
-           
         }
 
-        
+
+        private void TimerTick(object sender, EventArgs e)
+        {
+            canvas.Children.Clear();
+            DrawSquares();
+            DrawGrid();
+        }
+
+
         private void NewGame()
         {
-            //playersTurn = _random.Next() % 2 == 0;
-            playersTurn = true;
+            _playersTurn = true;
             squares = new List<Square>();
             squares.Clear();
             for (int i = 0; i < GridSize; i++)
@@ -90,12 +98,12 @@ namespace Palcikas_Jatek
         {
             foreach (var square in squares)
             {
-                    square.DrawSides(playersTurn);
-                    square.DrawFill();
+                square.DrawSides(_playersTurn);
+                square.DrawFill();
             }
         }
 
-        
+
 
         private int GetGridX(int col)
         {
@@ -108,13 +116,13 @@ namespace Palcikas_Jatek
 
         private void canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!playersTurn)
-            {
-                return;
-            }
+            //if (!playersTurn)
+            //{
+            //    return;
+            //}
 
-            int x = (int) e.GetPosition(canvas).X ;
-            int y = (int) e.GetPosition(canvas).Y ;
+            int x = (int)e.GetPosition(canvas).X;
+            int y = (int)e.GetPosition(canvas).Y;
 
             HighLightSide(x, y);
         }
@@ -129,13 +137,13 @@ namespace Palcikas_Jatek
 
             foreach (var square in squares)
             {
-                if (square.Contains(x,y))
+                if (square.Contains(x, y))
                 {
-                    var side = square.HighLightSide(x, y);
-                    square.DrawSides(playersTurn);
+                    square.HighLightSide(x, y);
+                    square.DrawSides(_playersTurn);
                 }
             }
-            
+
         }
     }
 }
