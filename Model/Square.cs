@@ -34,7 +34,7 @@ namespace Palcikas_Jatek.Model
 
         public bool Contains(int x, int y)
         {
-            return x >= this.Left && x < this.Right && y >= this.Top && y < this.Bottom;
+            return x >= Left && x < Right && y >= Top && y < Bottom;
         }
 
         public Brush GetColor(bool playersTurn, bool light)
@@ -78,16 +78,16 @@ namespace Palcikas_Jatek.Model
             switch (side)
             {
                 case Side.LEFT:
-                    DrawLine(this.Left, this.Top, this.Left, this.Bottom, color);
+                    DrawLine(Left, Top, Left, Bottom, color);
                     break;
                 case Side.TOP:
-                    DrawLine(this.Left, this.Top, this.Right, this.Top, color);
+                    DrawLine(Left, Top, Right, Top, color);
                     break;
                 case Side.RIGHT:
-                    DrawLine(this.Right, this.Top, this.Right, this.Bottom, color);
+                    DrawLine(Right, Top, Right, Bottom, color);
                     break;
                 case Side.BOTTOM:
-                    DrawLine(this.Left, this.Bottom, this.Right, this.Bottom, color);
+                    DrawLine(Left, Bottom, Right, Bottom, color);
                     break;
                 default:
                     break;
@@ -101,7 +101,52 @@ namespace Palcikas_Jatek.Model
             {
                 DrawSide(HighLight, GetColor(playersTurn, true));
             }
-            
+
+            if (_bottom)
+            {
+                DrawSide(Side.BOTTOM, GetColor(playersTurn, false));
+            }
+            if (_left)
+            {
+                DrawSide(Side.LEFT, GetColor(playersTurn, false));
+            }
+            if (_top)
+            {
+                DrawSide(Side.TOP, GetColor(playersTurn, false));
+            }
+            if (_right)
+            {
+                DrawSide(Side.RIGHT, GetColor(playersTurn, false));
+            }
+
+        }
+
+        public void SelectSide()
+        {
+            if (HighLight == Side.Null)
+            {
+                return;
+            }
+
+            switch (HighLight)
+            {
+                case Side.LEFT:
+                    _left = true;
+                    break;
+                case Side.TOP:
+                    _top = true;
+                    break;
+                case Side.RIGHT:
+                    _right = true;
+                    break;
+                case Side.BOTTOM:
+                    _bottom = true;
+                    break;
+                default:
+                    break;
+            }
+
+            HighLight = Side.Null;
         }
 
         public Side HighLightSide(int x, int y)
@@ -121,8 +166,7 @@ namespace Palcikas_Jatek.Model
                     closest = distances[i];
                 }
             }
-            Trace.WriteLine($"distances:{distanceLeft},{distanceTop}, {distanceRight},{distanceBot} closest {closest} Mouse {x},{y}");
-
+            
             // highlight the closest if not already selected
             if (closest == distanceBot && !this._bottom)
             {

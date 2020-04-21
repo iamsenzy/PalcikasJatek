@@ -29,10 +29,11 @@ namespace Palcikas_Jatek
         private const int GridSize = 5;
         private const int Cell = GameWidth / (GridSize + 2);
         private const int Dot = Cell / 10;
-        private const double RefreshTimerSec = 0.1;
+        private const double RefreshTimerSec = 0.03;
 
         // game var
         private List<Square> squares;
+        private List<Square> currentCells;
         private bool _playersTurn;
         private bool _isRunning;
         private readonly DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);
@@ -63,6 +64,7 @@ namespace Palcikas_Jatek
         {
             _playersTurn = true;
             squares = new List<Square>();
+            currentCells = new List<Square>();
             squares.Clear();
             for (int i = 0; i < GridSize; i++)
             {
@@ -114,7 +116,7 @@ namespace Palcikas_Jatek
             return Cell + Cell * row;
         }
 
-        private void canvas_MouseMove(object sender, MouseEventArgs e)
+        private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
             //if (!playersTurn)
             //{
@@ -127,6 +129,25 @@ namespace Palcikas_Jatek
             HighLightSide(x, y);
         }
 
+        private void Canvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            SelectSide();
+        }
+
+        private void SelectSide()
+        {
+            if(currentCells.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var square in currentCells)
+            {
+                square.SelectSide();
+            }
+            currentCells.Clear();
+        }
+
         private void HighLightSide(int x, int y)
         {
             // clear prev highlihting
@@ -135,15 +156,19 @@ namespace Palcikas_Jatek
                 square.HighLight = Side.Null;
             }
 
+            currentCells.Clear();
             foreach (var square in squares)
             {
                 if (square.Contains(x, y))
                 {
                     square.HighLightSide(x, y);
                     square.DrawSides(_playersTurn);
+                    currentCells.Add(square);
                 }
             }
 
         }
+
+       
     }
 }
