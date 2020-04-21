@@ -29,7 +29,7 @@ namespace Palcikas_Jatek
         private const int GridSize = 5;
         private const int Cell = GameWidth / (GridSize + 2);
         private const int Dot = Cell / 10;
-        private const double RefreshTimerSec = 0.03;
+        private const double RefreshTimerSec = 0.05;
 
         // game var
         private List<Square> squares;
@@ -101,7 +101,10 @@ namespace Palcikas_Jatek
             foreach (var square in squares)
             {
                 square.DrawSides(_playersTurn);
-                square.DrawFill();
+                if (square.SelectedNum == 4)
+                {
+                    square.DrawFill();
+                }
             }
         }
 
@@ -136,16 +139,28 @@ namespace Palcikas_Jatek
 
         private void SelectSide()
         {
-            if(currentCells.Count == 0)
+            if (currentCells.Count == 0)
             {
                 return;
             }
-
+            bool filledSquare = false;
             foreach (var square in currentCells)
             {
-                square.SelectSide();
+
+                if (square.SelectSide(_playersTurn))
+                {
+                    filledSquare = true;
+                }
             }
             currentCells.Clear();
+            if (filledSquare)
+            {
+                // check winner
+            }
+            else
+            {
+                _playersTurn = !_playersTurn;
+            }
         }
 
         private void HighLightSide(int x, int y)
@@ -157,18 +172,61 @@ namespace Palcikas_Jatek
             }
 
             currentCells.Clear();
-            foreach (var square in squares)
+            for (int i = 0; i < squares.Count; i++)
             {
-                if (square.Contains(x, y))
+                Side side = Side.Null;
+                // highlight current
+                if (squares[i].Contains(x, y))
                 {
-                    square.HighLightSide(x, y);
-                    square.DrawSides(_playersTurn);
-                    currentCells.Add(square);
+                    side = squares[i].HighLightSide(x, y);
+                    if (side != Side.Null)
+                    {
+                        squares[i].DrawSides(_playersTurn);
+                        currentCells.Add(squares[i]);
+                    }
+
                 }
+
+                bool neighbour = true;
+                Side highlight = Side.Null;
+                int row = i / GridSize;
+                int k = 0;
+                if (side == Side.LEFT && i % GridSize > 0)
+                {
+                    k = i - 1;
+                    highlight = Side.RIGHT;
+                }
+                else if (side == Side.TOP && row - 1 >= 0)
+                {
+                    k = i - GridSize;
+                    highlight = Side.BOTTOM;
+                }
+                else if (side == Side.RIGHT && i % GridSize + 1 < GridSize)
+                {
+                    k = i + 1;
+                    highlight = Side.LEFT;
+                }
+                else if (side == Side.BOTTOM && row + 1 < GridSize)
+                {
+                    k = i + GridSize;
+                    highlight = Side.TOP;
+                }
+                else
+                {
+                    neighbour = false;
+                }
+
+                if (neighbour)
+                {
+                    squares[k].HighLight = highlight;
+                    currentCells.Add(squares[k]);
+                }
+
+
             }
 
         }
 
-       
+
     }
 }

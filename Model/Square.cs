@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
@@ -17,8 +18,10 @@ namespace Palcikas_Jatek.Model
         public int Right { get; set; }
         public int Bottom { get; set; }
 
+        public int SelectedNum { get; set; } = 0;
+        public bool Owner { get; set; } 
         public Side HighLight { get; set; } = Side.Null;
-        private bool _left, _top, _right, _bottom;
+        private OneSide _left, _top, _right, _bottom;
         private Canvas _canvas;
 
         public Square(int x, int y, int w, int h, Canvas canvas)
@@ -41,11 +44,11 @@ namespace Palcikas_Jatek.Model
         {
             if (playersTurn)
             {
-                return light ? Brushes.LightCoral : Brushes.Coral; 
+                return light ? Brushes.LightPink : Brushes.Coral; 
             }
             else
             {
-                return light ? Brushes.LightGreen : Brushes.Green;
+                return light ? Brushes.LimeGreen : Brushes.Lime;
             }
         }
 
@@ -63,14 +66,13 @@ namespace Palcikas_Jatek.Model
 
         public void DrawFill()
         {
-            //var rectangle = new Rectangle();
-            //rectangle.Fill = Brushes.Gray;
-            //rectangle.Stroke = Brushes.Green;
-            //rectangle.Width = this.W;
-            //rectangle.Height = this.H;
-            //Canvas.SetTop(rectangle, this.Top);
-            //Canvas.SetLeft(rectangle, this.Left);
-            //_canvas.Children.Add(rectangle);
+            var rectangle = new Rectangle();
+            rectangle.Fill = GetColor(Owner, false);
+            rectangle.Width = W / 2;
+            rectangle.Height = H / 2;
+            Canvas.SetTop(rectangle, Top + H/2);
+            Canvas.SetLeft(rectangle, Left + W/2);
+            _canvas.Children.Add(rectangle);
         }
 
         public void DrawSide(Side side, Brush color)
@@ -102,51 +104,63 @@ namespace Palcikas_Jatek.Model
                 DrawSide(HighLight, GetColor(playersTurn, true));
             }
 
-            if (_bottom)
+            if (_bottom.Selected)
             {
-                DrawSide(Side.BOTTOM, GetColor(playersTurn, false));
+                DrawSide(Side.BOTTOM, GetColor(_bottom.Owner, false));
             }
-            if (_left)
+            if (_left.Selected)
             {
-                DrawSide(Side.LEFT, GetColor(playersTurn, false));
+                DrawSide(Side.LEFT, GetColor(_left.Owner, false));
             }
-            if (_top)
+            if (_top.Selected)
             {
-                DrawSide(Side.TOP, GetColor(playersTurn, false));
+                DrawSide(Side.TOP, GetColor(_top.Owner, false));
             }
-            if (_right)
+            if (_right.Selected)
             {
-                DrawSide(Side.RIGHT, GetColor(playersTurn, false));
+                DrawSide(Side.RIGHT, GetColor(_right.Owner, false));
             }
 
         }
 
-        public void SelectSide()
+        public bool SelectSide(bool playersTurn)
         {
-            if (HighLight == Side.Null)
+            if (HighLight == Side.Null )
             {
-                return;
+                return false;
             }
 
             switch (HighLight)
             {
                 case Side.LEFT:
-                    _left = true;
+                    _left.Owner = playersTurn;
+                    _left.Selected = true;
                     break;
                 case Side.TOP:
-                    _top = true;
+                    _top.Owner = playersTurn;
+                    _top.Selected = true;
                     break;
                 case Side.RIGHT:
-                    _right = true;
+                    _right.Owner = playersTurn;
+                    _right.Selected = true;
                     break;
                 case Side.BOTTOM:
-                    _bottom = true;
+                    _bottom.Owner = playersTurn;
+                    _bottom.Selected = true;
                     break;
                 default:
                     break;
             }
 
             HighLight = Side.Null;
+            SelectedNum++;
+            if (SelectedNum == 4)
+            {
+                Owner = playersTurn;
+                return true;
+            }
+
+            return false;
         }
 
         public Side HighLightSide(int x, int y)
@@ -168,19 +182,19 @@ namespace Palcikas_Jatek.Model
             }
             
             // highlight the closest if not already selected
-            if (closest == distanceBot && !this._bottom)
+            if (closest == distanceBot && !_bottom.Selected)
             {
                 HighLight = Side.BOTTOM;
             }
-            else if (closest == distanceLeft && !this._left)
+            else if (closest == distanceLeft && !_left.Selected)
             {
                 HighLight = Side.LEFT;
             }
-            else if (closest == distanceRight && !this._right)
+            else if (closest == distanceRight && !_right.Selected)
             {
                 HighLight = Side.RIGHT;
             }
-            else if (closest == distanceTop && !this._top)
+            else if (closest == distanceTop && !_top.Selected)
             {
                 HighLight = Side.TOP;
             }
