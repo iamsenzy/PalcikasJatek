@@ -8,9 +8,11 @@
         Title="Pálcikás Játék" ResizeMode="NoResize" WindowStartupLocation="CenterScreen"
         SizeToContent="WidthAndHeight" >
     <StackPanel Background="Black">
-        <StackPanel Orientation="Horizontal" Background="White">
-            <TextBlock Text="Score:" Margin="5"/>
-            <TextBlock x:Name="tbScore" Margin="5"/>
+        <StackPanel Orientation="Horizontal" Background="White" HorizontalAlignment="Center">
+            <TextBlock Text="Red Score:" Margin="5"/>
+            <TextBlock x:Name="tbRedScore" Text="0" Margin="5"/>
+            <TextBlock Text="Blue Score:" Margin="5"/>
+            <TextBlock x:Name="tbBlueScore" Text="0" Margin="5"/>
         </StackPanel>
         <Canvas x:Name="canvas" Height="500" Width="500" Background="White"
                 MouseMove="Canvas_MouseMove"

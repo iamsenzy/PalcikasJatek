@@ -55,11 +55,11 @@ namespace Palcikas_Jatek.Model
         {
             if (playersTurn)
             {
-                return light ? Brushes.LightPink : Brushes.Coral;
+                return light ? Brushes.LightCoral : Brushes.Coral;
             }
             else
             {
-                return light ? Brushes.LimeGreen : Brushes.Lime;
+                return light ? Brushes.DeepSkyBlue : Brushes.SkyBlue;
             }
         }
 

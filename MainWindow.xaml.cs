@@ -29,14 +29,14 @@ namespace Palcikas_Jatek
         private const int GridSize = 5;
         private const int Cell = GameWidth / (GridSize + 2);
         private const int Dot = Cell / 10;
-        private const double RefreshTimerSec = 0.05;
+        private const double RefreshTimerSec = 0.1;
 
         // game var
         private List<Square> squares;
         private List<Square> currentCells;
         private bool _playersTurn;
-        private bool _computer; // if false no computer player
-        private bool _isRunning;
+        private int _redScore;
+        private int _blueScore;
         private readonly DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);
 
 
@@ -48,7 +48,6 @@ namespace Palcikas_Jatek
             _timer.Interval = TimeSpan.FromSeconds(RefreshTimerSec);
             _timer.Tick += TimerTick;
             _timer.Start();
-            _isRunning = true;
             NewGame();
         }
 
@@ -64,6 +63,10 @@ namespace Palcikas_Jatek
 
         private void NewGame()
         {
+            _blueScore = 0;
+            _redScore = 0;
+            tbBlueScore.Text = "0";
+            tbRedScore.Text = "0";
             _playersTurn = true;
             squares = new List<Square>();
             currentCells = new List<Square>();
@@ -209,8 +212,35 @@ namespace Palcikas_Jatek
             currentCells.Clear();
             if (filledSquare)
             {
+                if (_playersTurn)
+                {
+                    _redScore++;
+                    tbRedScore.Text = _redScore.ToString();
+                }
+                else
+                {
+                    _blueScore++;
+                    tbBlueScore.Text = _blueScore.ToString();
+                }
+
                 if (GameOver())
                 {
+                    canvas.Children.Clear();
+                    DrawSquares();
+                    DrawGrid();
+
+                    if (_redScore > _blueScore)
+                    {
+                        MessageBox.Show("Red player WIN!");
+                    }else if (_redScore < _blueScore)
+                    {
+                        MessageBox.Show("Blue player WIN!");
+                    }
+                    else
+                    {
+                        MessageBox.Show("It's a DRAW!");
+                    }
+
                     NewGame();
                 }
             }
