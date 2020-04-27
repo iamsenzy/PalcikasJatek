@@ -8,5 +8,6 @@ namespace Palcikas_Jatek.Model
     {
         public bool Owner { get; set; }
         public bool Selected { get; set; }
+
     }
 }

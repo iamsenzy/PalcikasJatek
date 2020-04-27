@@ -19,10 +19,21 @@ namespace Palcikas_Jatek.Model
         public int Bottom { get; set; }
 
         public int SelectedNum { get; set; } = 0;
-        public bool Owner { get; set; } 
+        public bool Owner { get; set; }
         public Side HighLight { get; set; } = Side.Null;
         private OneSide _left, _top, _right, _bottom;
         private Canvas _canvas;
+
+        private readonly Random _random = new Random();
+
+        public bool LeftSide() { return _left.Selected; }
+        public bool TopSide() { return _left.Selected; }
+        public bool RightSide() { return _left.Selected; }
+        public bool BottomSide() { return _left.Selected; }
+
+        public Square()
+        {
+        }
 
         public Square(int x, int y, int w, int h, Canvas canvas)
         {
@@ -44,7 +55,7 @@ namespace Palcikas_Jatek.Model
         {
             if (playersTurn)
             {
-                return light ? Brushes.LightPink : Brushes.Coral; 
+                return light ? Brushes.LightPink : Brushes.Coral;
             }
             else
             {
@@ -67,11 +78,11 @@ namespace Palcikas_Jatek.Model
         public void DrawFill()
         {
             var rectangle = new Rectangle();
-            rectangle.Fill = GetColor(Owner, false);
-            rectangle.Width = W / 2;
-            rectangle.Height = H / 2;
-            Canvas.SetTop(rectangle, Top + H/2);
-            Canvas.SetLeft(rectangle, Left + W/2);
+            rectangle.Fill = GetColor(Owner, true);
+            rectangle.Width = W - 12;
+            rectangle.Height = H - 12;
+            Canvas.SetTop(rectangle, Top + 6);
+            Canvas.SetLeft(rectangle, Left + 6);
             _canvas.Children.Add(rectangle);
         }
 
@@ -99,7 +110,7 @@ namespace Palcikas_Jatek.Model
 
         public void DrawSides(bool playersTurn)
         {
-            if (HighLight!=Side.Null)
+            if (HighLight != Side.Null)
             {
                 DrawSide(HighLight, GetColor(playersTurn, true));
             }
@@ -125,7 +136,7 @@ namespace Palcikas_Jatek.Model
 
         public bool SelectSide(bool playersTurn)
         {
-            if (HighLight == Side.Null )
+            if (HighLight == Side.Null)
             {
                 return false;
             }
@@ -163,6 +174,34 @@ namespace Palcikas_Jatek.Model
             return false;
         }
 
+        public Coordinate GetFreeSideCoords()
+        {
+            Coordinate cLeft = new Coordinate(Left, Top + H / 2);
+            Coordinate cTop = new Coordinate(Left + W / 2, Top);
+            Coordinate cRight = new Coordinate(Right - 1, Top + H / 2);
+            Coordinate cBot = new Coordinate(Left + W / 2, Bottom - 1);
+
+            var freeCoords = new List<Coordinate>();
+            if (!_left.Selected)
+            {
+                freeCoords.Add(cLeft);
+            }
+            if (!_top.Selected)
+            {
+                freeCoords.Add(cTop);
+            }
+            if (!_right.Selected)
+            {
+                freeCoords.Add(cRight);
+            }
+            if (!_bottom.Selected)
+            {
+                freeCoords.Add(cBot);
+            }
+
+            return freeCoords[_random.Next(freeCoords.Count)];
+        }
+
         public Side HighLightSide(int x, int y)
         {
             int distanceRight = this.Right - x;
@@ -175,12 +214,12 @@ namespace Palcikas_Jatek.Model
             int closest = distances[0];
             for (int i = 1; i < distances.Length; i++)
             {
-                if(distances[i] < closest)
+                if (distances[i] < closest)
                 {
                     closest = distances[i];
                 }
             }
-            
+
             // highlight the closest if not already selected
             if (closest == distanceBot && !_bottom.Selected)
             {

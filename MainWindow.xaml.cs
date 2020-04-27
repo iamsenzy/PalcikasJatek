@@ -35,6 +35,7 @@ namespace Palcikas_Jatek
         private List<Square> squares;
         private List<Square> currentCells;
         private bool _playersTurn;
+        private bool _computer; // if false no computer player
         private bool _isRunning;
         private readonly DispatcherTimer _timer = new DispatcherTimer(DispatcherPriority.Send);
 
@@ -57,6 +58,7 @@ namespace Palcikas_Jatek
             canvas.Children.Clear();
             DrawSquares();
             DrawGrid();
+            ComputerTurn();
         }
 
 
@@ -73,6 +75,58 @@ namespace Palcikas_Jatek
                     squares.Add(new Square(GetGridX(j), GetGridY(i), Cell, Cell, canvas));
                 }
             }
+        }
+
+        public void ComputerTurn()
+        {
+            if(_playersTurn)
+            {
+                return;
+            }
+
+            var options = new List<List<Square>>();
+            for (int i = 0; i < 3; i++)
+            {
+                List<Square> opt = new List<Square>();
+                options.Add(opt);
+            }
+
+            for (int i=0;i<squares.Count;i++)
+            {
+                switch (squares[i].SelectedNum)
+                {
+                    case 3:
+                        options[0].Add(squares[i]);
+                        break;
+                    case 0:
+                    case 1:
+                        options[1].Add(squares[i]);
+                        break;
+                    case 2: 
+                        options[2].Add(squares[i]);
+                        break;
+                }
+            }
+
+            Square option = new Square();
+
+            if (options[0].Count > 0)
+            {
+                option = options[0][_random.Next(options[0].Count)];
+            }
+            else if (options[1].Count > 0)
+            {
+                option = options[1][_random.Next(options[1].Count)];
+            }
+            else if (options[2].Count > 0)
+            {
+                option = options[2][_random.Next(options[2].Count)];
+            }
+
+            Coordinate coordinate = option.GetFreeSideCoords();
+           
+            HighLightSide(coordinate.X,coordinate.Y);
+            SelectSide();
         }
 
         private void DrawDot(int x, int y)
@@ -121,10 +175,10 @@ namespace Palcikas_Jatek
 
         private void Canvas_MouseMove(object sender, MouseEventArgs e)
         {
-            //if (!playersTurn)
-            //{
-            //    return;
-            //}
+            if (!_playersTurn)
+            {
+               return;
+            }
 
             int x = (int)e.GetPosition(canvas).X;
             int y = (int)e.GetPosition(canvas).Y;
@@ -155,13 +209,29 @@ namespace Palcikas_Jatek
             currentCells.Clear();
             if (filledSquare)
             {
-                // check winner
+                if (GameOver())
+                {
+                    NewGame();
+                }
             }
             else
             {
                 _playersTurn = !_playersTurn;
             }
         }
+
+        private bool GameOver()
+        {
+            foreach (var square in squares)
+            {
+                if(square.SelectedNum != 4)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
 
         private void HighLightSide(int x, int y)
         {
