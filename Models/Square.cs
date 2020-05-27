@@ -9,7 +9,7 @@ using System.Windows.Shapes;
 
 namespace Palcikas_Jatek.Model
 {
-    class Square
+    public class Square
     {
         public int W { get; set; }
         public int H { get; set; }
@@ -22,20 +22,20 @@ namespace Palcikas_Jatek.Model
         public bool Owner { get; set; }
         public Side HighLight { get; set; } = Side.Null;
         private OneSide _left, _top, _right, _bottom;
-        private Canvas _canvas;
+        public bool Disable { get; set; }
 
         private readonly Random _random = new Random();
 
-        public bool LeftSide() { return _left.Selected; }
-        public bool TopSide() { return _left.Selected; }
-        public bool RightSide() { return _left.Selected; }
-        public bool BottomSide() { return _left.Selected; }
+        public OneSide LeftSide { get { return _left; } set { _left = value; } }
+        public OneSide TopSide { get { return _top; } set { _top = value; } }
+        public OneSide RightSide { get { return _right; } set { _right = value; } }
+        public OneSide BottomSide { get { return _bottom; } set { _bottom = value; } }
 
         public Square()
         {
         }
 
-        public Square(int x, int y, int w, int h, Canvas canvas)
+        public Square(int x, int y, int w, int h, bool rombus=false)
         {
             W = w;
             H = h;
@@ -43,95 +43,126 @@ namespace Palcikas_Jatek.Model
             Top = y;
             Right = x + w;
             Bottom = y + h;
-            _canvas = canvas;
+            Disable = false;
+            if (rombus) { DisableSquare();}
         }
 
         public bool Contains(int x, int y)
         {
+
             return x >= Left && x < Right && y >= Top && y < Bottom;
+        }
+
+        public void DisableSquare()
+        {
+            _left.Selected = _top.Selected = _right.Selected = _bottom.Selected = true;
+            SelectedNum = 4;
+            Disable = true;
+
+        }
+        public void EnableSquare()
+        {
+            _left.Selected = _top.Selected = _right.Selected = _bottom.Selected = false;
+            SelectedNum = 0;
+            Disable = false;
         }
 
         public Brush GetColor(bool playersTurn, bool light)
         {
+            if (Disable)
+            {
+                return light ? Brushes.LightGray : Brushes.Gray;
+            }
+
             if (playersTurn)
             {
-                return light ? Brushes.LightCoral : Brushes.Coral;
+                return light ? Brushes.LightPink : Brushes.Coral;
             }
             else
             {
-                return light ? Brushes.DeepSkyBlue : Brushes.SkyBlue;
+                return light ? Brushes.SkyBlue : Brushes.DeepSkyBlue;
             }
         }
 
-        private void DrawLine(int x1, int y1, int x2, int y2, Brush color)
+        private Line DrawLine(int x1, int y1, int x2, int y2, Brush color)
         {
-            var line = new Line();
-            line.Stroke = color;
-            line.StrokeThickness = 6;
-            line.X1 = x1;
-            line.Y1 = y1;
-            line.X2 = x2;
-            line.Y2 = y2;
-            _canvas.Children.Add(line);
+            var line = new Line
+            {
+                Stroke = color,
+                X1 = x1,
+                Y1 = y1,
+                X2 = x2,
+                Y2 = y2
+            };
+            return line;
         }
 
-        public void DrawFill()
+        public Rectangle DrawFill()
         {
-            var rectangle = new Rectangle();
-            rectangle.Fill = GetColor(Owner, true);
-            rectangle.Width = W - 12;
-            rectangle.Height = H - 12;
-            Canvas.SetTop(rectangle, Top + 6);
-            Canvas.SetLeft(rectangle, Left + 6);
-            _canvas.Children.Add(rectangle);
+            var rectangle = new Rectangle
+            {
+                Fill = GetColor(Owner, false),
+                Width = W - W * 0.2,
+                Height = H - H * 0.2
+            };
+            // Canvas.SetTop(rectangle, Top + 6);
+            // Canvas.SetLeft(rectangle, Left + 6);
+            // _canvas.Children.Add(rectangle);
+            return rectangle;
         }
 
-        public void DrawSide(Side side, Brush color)
+        public Line DrawSide(Side side, Brush color)
         {
+            Line line = new Line();
+
             switch (side)
             {
                 case Side.LEFT:
-                    DrawLine(Left, Top, Left, Bottom, color);
+                    line = DrawLine(Left, Top, Left, Bottom, color);
                     break;
                 case Side.TOP:
-                    DrawLine(Left, Top, Right, Top, color);
+                    line = DrawLine(Left, Top, Right, Top, color);
                     break;
                 case Side.RIGHT:
-                    DrawLine(Right, Top, Right, Bottom, color);
+                    line = DrawLine(Right, Top, Right, Bottom, color);
                     break;
                 case Side.BOTTOM:
-                    DrawLine(Left, Bottom, Right, Bottom, color);
+                    line = DrawLine(Left, Bottom, Right, Bottom, color);
                     break;
                 default:
                     break;
             }
 
+            return line;
         }
 
-        public void DrawSides(bool playersTurn)
+        public List<Line> DrawSides(bool playersTurn)
         {
-            if (HighLight != Side.Null)
-            {
-                DrawSide(HighLight, GetColor(playersTurn, true));
-            }
+            List<Line> lines = new List<Line>();
 
             if (_bottom.Selected)
             {
-                DrawSide(Side.BOTTOM, GetColor(_bottom.Owner, false));
+                lines.Add(DrawSide(Side.BOTTOM, GetColor(_bottom.Owner, false)));
             }
             if (_left.Selected)
             {
-                DrawSide(Side.LEFT, GetColor(_left.Owner, false));
+                lines.Add(DrawSide(Side.LEFT, GetColor(_left.Owner, false)));
             }
             if (_top.Selected)
             {
-                DrawSide(Side.TOP, GetColor(_top.Owner, false));
+                lines.Add(DrawSide(Side.TOP, GetColor(_top.Owner, false)));
             }
             if (_right.Selected)
             {
-                DrawSide(Side.RIGHT, GetColor(_right.Owner, false));
+                lines.Add(DrawSide(Side.RIGHT, GetColor(_right.Owner, false)));
             }
 
+            if (HighLight != Side.Null)
+            {
+                lines.Add(DrawSide(HighLight, GetColor(playersTurn, true)));
+            }
+
+            return lines;
         }
 
         public bool SelectSide(bool playersTurn)
@@ -174,12 +205,40 @@ namespace Palcikas_Jatek.Model
             return false;
         }
 
-        public Coordinate GetFreeSideCoords()
+        public Coordinate GetFreeSideCoords(Side side = Side.Null)
         {
             Coordinate cLeft = new Coordinate(Left, Top + H / 2);
             Coordinate cTop = new Coordinate(Left + W / 2, Top);
             Coordinate cRight = new Coordinate(Right - 1, Top + H / 2);
-            Coordinate cBot = new Coordinate(Left + W / 2, Bottom - 1);
+            Coordinate cBottom = new Coordinate(Left + W / 2, Bottom - 1);
+
+            Coordinate coordinate = new Coordinate(-1, -1);
+            if (side != Side.Null)
+            {
+                switch (side)
+                {
+                    case Side.LEFT:
+                        coordinate = cLeft;
+                        break;
+                    case Side.TOP:
+                        coordinate = cTop;
+                        break;
+                    case Side.RIGHT:
+                        coordinate = cRight;
+                        break;
+                    case Side.BOTTOM:
+                        coordinate = cBottom;
+                        break;
+                    case Side.Null:
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (side != Side.Null)
+            {
+                return coordinate;
+            }
 
             var freeCoords = new List<Coordinate>();
             if (!_left.Selected)
@@ -196,7 +255,7 @@ namespace Palcikas_Jatek.Model
             }
             if (!_bottom.Selected)
             {
-                freeCoords.Add(cBot);
+                freeCoords.Add(cBottom);
             }
 
             return freeCoords[_random.Next(freeCoords.Count)];

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Palcikas_Jatek.Model
 {
-    class Coordinate
+    public class Coordinate
     {
         public int X { get; set; }
         public int Y { get; set; }

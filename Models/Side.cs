@@ -4,10 +4,12 @@ using System.Text;
 
 namespace Palcikas_Jatek.Model
 {
-    struct OneSide
+    public enum Side
     {
-        public bool Owner { get; set; }
-        public bool Selected { get; set; }
-
+        LEFT,
+        TOP,
+        RIGHT,
+        BOTTOM,
+        Null
     }
 }

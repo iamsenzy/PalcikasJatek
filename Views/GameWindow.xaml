@@ -1,4 +1,4 @@
-﻿<Window x:Class="Palcikas_Jatek.MainWindow"
+﻿<Window x:Class="Palcikas_Jatek.GameWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,9 +9,9 @@
         SizeToContent="WidthAndHeight" >
     <StackPanel Background="Black">
         <StackPanel Orientation="Horizontal" Background="White" HorizontalAlignment="Center">
-            <TextBlock Text="Red Score:" Margin="5"/>
+            <TextBlock x:Name="tbRedName" Text="Red Score:" Margin="5"/>
             <TextBlock x:Name="tbRedScore" Text="0" Margin="5"/>
-            <TextBlock Text="Blue Score:" Margin="5"/>
+            <TextBlock x:Name="tbBlueName" Text="Blue Score:" Margin="5"/>
             <TextBlock x:Name="tbBlueScore" Text="0" Margin="5"/>
         </StackPanel>
         <Canvas x:Name="canvas" Height="500" Width="500" Background="White"
